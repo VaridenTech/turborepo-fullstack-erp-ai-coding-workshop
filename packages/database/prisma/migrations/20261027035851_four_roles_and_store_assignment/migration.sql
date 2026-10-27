@@ -2,7 +2,15 @@
 BEGIN;
 CREATE TYPE "Role_new" AS ENUM ('ADMINISTRATOR', 'PURCHASING_OFFICER', 'STORE_EMPLOYEE', 'MANAGER');
 ALTER TABLE "public"."User" ALTER COLUMN "role" DROP DEFAULT;
-ALTER TABLE "User" ALTER COLUMN "role" TYPE "Role_new" USING ("role"::text::"Role_new");
+-- Backfill the retired values so the cast lands on a member of Role_new even on a
+-- database seeded with the old enum (ADMIN -> ADMINISTRATOR, STAFF -> STORE_EMPLOYEE).
+ALTER TABLE "User" ALTER COLUMN "role" TYPE "Role_new" USING (
+  CASE "role"::text
+    WHEN 'ADMIN' THEN 'ADMINISTRATOR'
+    WHEN 'STAFF' THEN 'STORE_EMPLOYEE'
+    ELSE "role"::text
+  END::"Role_new"
+);
 ALTER TYPE "Role" RENAME TO "Role_old";
 ALTER TYPE "Role_new" RENAME TO "Role";
 DROP TYPE "public"."Role_old";
