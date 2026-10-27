@@ -21,7 +21,7 @@ describe('CreateAdjustmentSchema', () => {
   });
 
   it('rejects a missing reason', () => {
-    const { reason, ...withoutReason } = base;
+    const { reason: _reason, ...withoutReason } = base;
     expect(CreateAdjustmentSchema.safeParse(withoutReason).success).toBe(false);
   });
 

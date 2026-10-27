@@ -84,8 +84,6 @@ describe('recordAdjustment (INV-05, NFR-03)', () => {
     await expect(
       db.prisma.auditLog.update({ where: { id: audit.id }, data: { outcome: 'REJECTED' } }),
     ).rejects.toThrow();
-    await expect(
-      db.prisma.auditLog.delete({ where: { id: audit.id } }),
-    ).rejects.toThrow();
+    await expect(db.prisma.auditLog.delete({ where: { id: audit.id } })).rejects.toThrow();
   });
 });
