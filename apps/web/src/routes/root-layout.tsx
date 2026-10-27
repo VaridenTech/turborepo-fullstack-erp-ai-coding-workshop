@@ -20,6 +20,9 @@ export function RootLayout() {
                 <Link to="/suppliers" className="text-muted-foreground hover:text-foreground">
                   ผู้ขาย
                 </Link>
+                <Link to="/products" className="text-muted-foreground hover:text-foreground">
+                  สินค้า
+                </Link>
               </nav>
             )}
           </div>
