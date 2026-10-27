@@ -44,3 +44,17 @@ model Store {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+/// Supplier master data (MD-03). `code` is unique; contact details are optional.
+/// The list is ordered newest-first.
+model Supplier {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  name          String
+  contactPerson String?
+  phone         String?
+  email         String?
+  address       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
