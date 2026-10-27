@@ -5,7 +5,8 @@ import { ORPCError } from '@orpc/nest';
 import { describe, expect, it, vi } from 'vitest';
 import { ROLES_KEY } from '../auth/auth.decorators.js';
 import { PrismaService } from '../database/prisma.service.js';
-import { assertProductUsableInDocument, ProductsController } from './products.controller.js';
+import { assertProductUsableInDocument } from './products.rules.js';
+import { ProductsController } from './products.controller.js';
 
 async function createController(prisma: Record<string, unknown>) {
   const moduleRef = await Test.createTestingModule({
@@ -200,6 +201,29 @@ describe('ProductsController', () => {
     // The update never carries an sku key (immutable, AC5).
     const updateArg = update.mock.calls[0]![0];
     expect('sku' in updateArg.data).toBe(false);
+  });
+
+  it('never writes sku on update even if a client sends one (AC5)', async () => {
+    const update = vi.fn().mockResolvedValue(water);
+    const controller = await createController({
+      product: { update },
+      $transaction: vi.fn(async (fn: (tx: unknown) => unknown) =>
+        fn({ product: { update }, productReorderThreshold: { deleteMany: vi.fn() } }),
+      ),
+    });
+
+    // A stray `sku` is stripped by the contract and must never reach Prisma.
+    await call(controller.update(), {
+      id: 'p1',
+      sku: 'SKU999',
+      name: 'Drinking water pack of 6',
+      category: 'Beverage',
+      unit: 'pack',
+      sellingPrice: '60.00',
+    } as never);
+
+    const data = update.mock.calls[0]![0].data;
+    expect('sku' in data).toBe(false);
   });
 });
 

@@ -4,6 +4,8 @@ import { Implement, implement, ORPCError } from '@orpc/nest';
 import { Roles } from '../auth/auth.decorators.js';
 import { PrismaService } from '../database/prisma.service.js';
 
+export { assertProductUsableInDocument } from './products.rules.js';
+
 /** Timestamps arrive as `Date` from Prisma; normalize to the contract's ISO string. */
 function toIso(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : value;
@@ -52,24 +54,6 @@ function productSkuTakenError() {
   return new ORPCError('CONFLICT', {
     data: { code: 'PRODUCT_SKU_TAKEN', message: 'รหัสสินค้านี้ถูกใช้แล้ว', fields: ['sku'] },
   });
-}
-
-/**
- * The reusable "is this product usable in a new document?" rule (MD-02). An inactive
- * product stays searchable in history but may not be added to a new document. Later
- * tickets that create documents (#6 stock, #8 purchase orders, #11 sales) import this
- * guard and call it when adding a product line, so the rule lives in one place.
- */
-export function assertProductUsableInDocument(product: { isActive: boolean }): void {
-  if (!product.isActive) {
-    throw new ORPCError('CONFLICT', {
-      data: {
-        code: 'PRODUCT_INACTIVE',
-        message: 'สินค้านี้ถูกปิดการใช้งาน ไม่สามารถเพิ่มลงในเอกสารใหม่ได้',
-        fields: ['productId'],
-      },
-    });
-  }
 }
 
 /**

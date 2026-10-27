@@ -48,6 +48,13 @@ function ProductList() {
 
   return (
     <ul className="divide-y rounded-md border">
+      {setActive.error && (
+        <li className="px-4 py-3">
+          <p role="alert" className="text-sm text-destructive">
+            {thaiError(setActive.error)}
+          </p>
+        </li>
+      )}
       {products.data.items.map((product) => (
         <li key={product.id} className="flex items-center justify-between px-4 py-3">
           <div className="flex flex-col">

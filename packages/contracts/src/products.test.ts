@@ -113,4 +113,22 @@ describe('ProductListQuerySchema', () => {
       expect(result.data.includeInactive).toBe(true);
     }
   });
+
+  it('treats the query string "false" as false (not coerced to true)', () => {
+    const result = ProductListQuerySchema.safeParse({ includeInactive: 'false' });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.includeInactive).toBe(false);
+    }
+  });
+
+  it('treats the query string "true" as true', () => {
+    const result = ProductListQuerySchema.safeParse({ includeInactive: 'true' });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.includeInactive).toBe(true);
+    }
+  });
 });

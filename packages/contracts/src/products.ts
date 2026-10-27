@@ -7,11 +7,9 @@ import * as z from 'zod';
  * per store. Money is a two-decimal string (Section 6.1), never a float over the wire.
  */
 
-/** A money amount with exactly two decimal places, e.g. "60.00". Non-negative. */
-const Money = z
-  .string()
-  .regex(/^\d+\.\d{2}$/, 'ราคาต้องมีทศนิยมสองตำแหน่ง')
-  .refine((value) => Number(value) >= 0, { message: 'ราคาต้องไม่ติดลบ' });
+/** A money amount with exactly two decimal places, e.g. "60.00". The pattern admits
+ * only digits before the point, so negatives are rejected without a separate check. */
+const Money = z.string().regex(/^\d+\.\d{2}$/, 'ราคาต้องเป็นตัวเลขทศนิยมสองตำแหน่งและไม่ติดลบ');
 
 /** A per-store reorder threshold: a whole number, not negative (MD-02). */
 export const ReorderThresholdSchema = z.object({
@@ -63,13 +61,19 @@ export type UpdateProductInput = z.infer<typeof UpdateProductSchema>;
 /**
  * List query (Section 6.2): 1-based `page`, bounded `pageSize`, an optional search
  * term (SKU or name), and `includeInactive` so historical search can surface
- * deactivated products (MD-02).
+ * deactivated products (MD-02). `includeInactive` accepts a real boolean or the
+ * query strings "true"/"false" (not `z.coerce.boolean`, which treats "false" as true).
  */
+const BooleanFromQuery = z
+  .union([z.boolean(), z.enum(['true', 'false'])])
+  .default(false)
+  .transform((value) => value === true || value === 'true');
+
 export const ProductListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(100).default(20),
   search: z.string().trim().optional(),
-  includeInactive: z.coerce.boolean().default(false),
+  includeInactive: BooleanFromQuery,
 });
 export type ProductListQuery = z.infer<typeof ProductListQuerySchema>;
 
