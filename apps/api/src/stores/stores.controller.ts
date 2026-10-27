@@ -21,6 +21,13 @@ function toStore(store: Store) {
   };
 }
 
+/** The shared Thai error envelope for a taken store code (NFR-04). */
+function storeCodeTakenError() {
+  return new ORPCError('CONFLICT', {
+    data: { code: 'STORE_CODE_TAKEN', message: 'รหัสสาขานี้ถูกใช้แล้ว', fields: ['code'] },
+  });
+}
+
 /**
  * Stores master data. Every route is Administrator-only, enforced at the API by
  * `@Roles('ADMIN')` and the global `AuthGuard` (NFR-01). Duplicate codes surface
@@ -53,9 +60,7 @@ export class StoresController {
     return implement(contract.stores.create).handler(async ({ input }) => {
       const existing = await this.prisma.store.findUnique({ where: { code: input.code } });
       if (existing) {
-        throw new ORPCError('CONFLICT', {
-          data: { code: 'STORE_CODE_TAKEN', message: 'รหัสสาขานี้ถูกใช้แล้ว', fields: ['code'] },
-        });
+        throw storeCodeTakenError();
       }
       const created = await this.prisma.store.create({
         data: { code: input.code, name: input.name },
@@ -69,6 +74,12 @@ export class StoresController {
   update() {
     return implement(contract.stores.update).handler(async ({ input }) => {
       const { id, ...data } = input;
+      // A code collision with a *different* store surfaces the shared envelope,
+      // never a raw Prisma unique-constraint error (NFR-04).
+      const existing = await this.prisma.store.findUnique({ where: { code: data.code } });
+      if (existing && existing.id !== id) {
+        throw storeCodeTakenError();
+      }
       const updated = await this.prisma.store.update({ where: { id }, data });
       return toStore(updated);
     });

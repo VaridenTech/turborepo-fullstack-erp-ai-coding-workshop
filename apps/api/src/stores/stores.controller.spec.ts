@@ -1,7 +1,9 @@
 import { Test } from '@nestjs/testing';
+import { Reflector } from '@nestjs/core';
 import { call } from '@orpc/server';
 import { ORPCError } from '@orpc/nest';
 import { describe, expect, it, vi } from 'vitest';
+import { ROLES_KEY } from '../auth/auth.decorators.js';
 import { PrismaService } from '../database/prisma.service.js';
 import { StoresController } from './stores.controller.js';
 
@@ -98,5 +100,63 @@ describe('StoresController', () => {
       ORPCError,
     );
     expect(create).not.toHaveBeenCalled();
+  });
+
+  it('updates a store and returns it', async () => {
+    const findUnique = vi.fn().mockResolvedValue(null);
+    const update = vi.fn().mockResolvedValue({ ...central, name: 'สาขาเปลี่ยนชื่อ' });
+    const controller = await createController({ store: { findUnique, update } });
+
+    const result = await call(controller.update(), {
+      id: 's1',
+      code: 'B01',
+      name: 'สาขาเปลี่ยนชื่อ',
+    });
+
+    expect(result).toMatchObject({ id: 's1', name: 'สาขาเปลี่ยนชื่อ' });
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 's1' },
+      data: { code: 'B01', name: 'สาขาเปลี่ยนชื่อ' },
+    });
+  });
+
+  it('rejects an update whose code belongs to another store with the Thai envelope', async () => {
+    // Another store already owns code B01.
+    const findUnique = vi.fn().mockResolvedValue({ ...central, id: 'other' });
+    const update = vi.fn();
+    const controller = await createController({ store: { findUnique, update } });
+
+    const error = await call(controller.update(), {
+      id: 's1',
+      code: 'B01',
+      name: 'สาขาใหม่',
+    }).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(ORPCError);
+    expect((error as ORPCError<string, unknown>).data).toMatchObject({
+      code: 'STORE_CODE_TAKEN',
+      fields: ['code'],
+    });
+    expect(update).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * Role enforcement (NFR-01) is observable at seam 1 through the `@Roles('ADMIN')`
+ * metadata the global AuthGuard reads; the guard's allow/deny behaviour itself is
+ * proven in `auth.guard.spec.ts`. A route without this metadata would be reachable
+ * by any signed-in user, so the metadata is the contract that gates each route.
+ */
+describe('StoresController role enforcement', () => {
+  const reflector = new Reflector();
+
+  it.each(['list', 'create', 'update'] as const)('restricts %s to ADMIN', async (method) => {
+    const controller = await createController({});
+    const roles = reflector.get<string[]>(
+      ROLES_KEY,
+      Object.getPrototypeOf(controller)[method] as () => unknown,
+    );
+
+    expect(roles).toEqual(['ADMIN']);
   });
 });
