@@ -22,28 +22,31 @@ enum Role {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String
+  id             String          @id @default(cuid())
+  email          String          @unique
+  name           String
   /// Written by hashPassword() from @erp/database. Never returned by the API.
-  passwordHash String
-  role         Role     @default(STORE_EMPLOYEE)
+  passwordHash   String
+  role           Role            @default(STORE_EMPLOYEE)
   /// Store assignment (Section 2). Required for STORE_EMPLOYEE, null for other roles.
-  storeId      String?
-  store        Store?   @relation(fields: [storeId], references: [id])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  storeId        String?
+  store          Store?          @relation(fields: [storeId], references: [id])
+  stockMovements StockMovement[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
 
 /// Store master data (MD-03). `code` is unique; the list is ordered newest-first.
 model Store {
-  id                 String                    @id @default(cuid())
-  code               String                    @unique
-  name               String
-  employees          User[]
-  reorderThresholds  ProductReorderThreshold[]
-  createdAt          DateTime                  @default(now())
-  updatedAt          DateTime                  @updatedAt
+  id                String                    @id @default(cuid())
+  code              String                    @unique
+  name              String
+  employees         User[]
+  reorderThresholds ProductReorderThreshold[]
+  stockBalances     StockBalance[]
+  stockMovements    StockMovement[]
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
 }
 
 /// Supplier master data (MD-03). `code` is unique; contact details are optional.
@@ -72,6 +75,8 @@ model Product {
   sellingPrice      Decimal                   @db.Decimal(12, 2)
   isActive          Boolean                   @default(true)
   reorderThresholds ProductReorderThreshold[]
+  stockBalances     StockBalance[]
+  stockMovements    StockMovement[]
   createdAt         DateTime                  @default(now())
   updatedAt         DateTime                  @updatedAt
 }
@@ -87,4 +92,56 @@ model ProductReorderThreshold {
   threshold Int
 
   @@unique([productId, storeId])
+}
+
+enum StockMovementType {
+  RECEIPT
+  SALE
+  ADJUSTMENT
+}
+
+/// Current stock per (product, store) (INV-03). Updated only inside the transaction that
+/// inserts the matching `StockMovement`, by a conditional UPDATE that refuses to go below
+/// zero (INV-04). A CHECK constraint (see the migration) backs the floor at the database.
+model StockBalance {
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id])
+  quantity  Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@id([productId, storeId])
+}
+
+/// Append-only stock ledger (INV-02). One row per stock increase or decrease. Rows are
+/// immutable: database triggers (see the migration) reject UPDATE and DELETE.
+/// `balanceAfter = balanceBefore + quantityChange`, and is never negative.
+model StockMovement {
+  id                 String            @id @default(cuid())
+  productId          String
+  product            Product           @relation(fields: [productId], references: [id])
+  storeId            String
+  store              Store             @relation(fields: [storeId], references: [id])
+  quantityChange     Int
+  balanceBefore      Int
+  balanceAfter       Int
+  type               StockMovementType
+  /// The document that caused the movement, e.g. type "GOODS_RECEIPT" and its document number.
+  sourceDocumentType String
+  sourceDocumentId   String
+  actorId            String
+  actor              User              @relation(fields: [actorId], references: [id])
+  createdAt          DateTime          @default(now())
+
+  @@index([productId, storeId, createdAt])
+  @@index([createdAt])
+}
+
+/// Last number issued per document prefix (Section 4.3). Incremented by a single atomic
+/// upsert inside the caller's transaction, so numbers are unique and a rollback gives the
+/// number back.
+model DocumentSequence {
+  prefix    String @id
+  lastValue Int
 }

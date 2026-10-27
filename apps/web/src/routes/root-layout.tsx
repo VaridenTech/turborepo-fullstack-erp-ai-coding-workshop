@@ -11,20 +11,26 @@ export function RootLayout() {
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6 font-semibold">
           <div className="flex items-center gap-6">
             <Link to="/">ERP Workshop</Link>
-            {/* Administrator-only master data. The API still enforces @Roles('ADMINISTRATOR'). */}
-            {user?.role === 'ADMINISTRATOR' && (
-              <nav className="flex items-center gap-4 text-sm font-normal">
-                <Link to="/stores" className="text-muted-foreground hover:text-foreground">
-                  สาขา
-                </Link>
-                <Link to="/suppliers" className="text-muted-foreground hover:text-foreground">
-                  ผู้ขาย
-                </Link>
-                <Link to="/products" className="text-muted-foreground hover:text-foreground">
-                  สินค้า
-                </Link>
-              </nav>
-            )}
+            <nav className="flex items-center gap-4 text-sm font-normal">
+              {/* Stock is visible to every signed-in role; the API scopes store employees. */}
+              <Link to="/inventory" className="text-muted-foreground hover:text-foreground">
+                สต็อก
+              </Link>
+              {/* Administrator-only master data. The API still enforces @Roles('ADMINISTRATOR'). */}
+              {user?.role === 'ADMINISTRATOR' && (
+                <>
+                  <Link to="/stores" className="text-muted-foreground hover:text-foreground">
+                    สาขา
+                  </Link>
+                  <Link to="/suppliers" className="text-muted-foreground hover:text-foreground">
+                    ผู้ขาย
+                  </Link>
+                  <Link to="/products" className="text-muted-foreground hover:text-foreground">
+                    สินค้า
+                  </Link>
+                </>
+              )}
+            </nav>
           </div>
           <UserMenu />
         </div>

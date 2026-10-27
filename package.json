@@ -15,6 +15,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "test:integration": "pnpm --filter @erp/api test:integration",
     "check": "turbo run lint typecheck test build",
     "e2e": "turbo run e2e",
     "format": "prettier --write .",
