@@ -31,6 +31,18 @@ describe('CreateSupplierSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('rejects a whitespace-only code', () => {
+    const result = CreateSupplierSchema.safeParse({ code: '   ', name: 'SupplyOne Co Ltd' });
+
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a whitespace-only name', () => {
+    const result = CreateSupplierSchema.safeParse({ code: 'SUP01', name: '   ' });
+
+    expect(result.success).toBe(false);
+  });
+
   it('rejects a blank name', () => {
     const result = CreateSupplierSchema.safeParse({ code: 'SUP01', name: '' });
 

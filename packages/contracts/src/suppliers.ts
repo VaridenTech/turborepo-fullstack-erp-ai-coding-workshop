@@ -21,8 +21,8 @@ export const SupplierSchema = z.object({
 export type Supplier = z.infer<typeof SupplierSchema>;
 
 /**
- * Create input: `code` and `name` are required; each contact field is optional and,
- * when given, an empty string is treated as absent. `email` must be a valid address.
+ * Optional contact field: trimmed, and an empty string is treated as absent so a
+ * blank form input never stores `""`. Reused by every optional supplier field.
  */
 const OptionalContact = z
   .string()
@@ -31,18 +31,18 @@ const OptionalContact = z
   .optional();
 
 /** Optional email: absent or empty becomes undefined; otherwise must be a valid address. */
-const OptionalEmail = z
-  .string()
-  .trim()
-  .optional()
-  .transform((value) => (value === undefined || value === '' ? undefined : value))
-  .refine((value) => value === undefined || z.email().safeParse(value).success, {
-    message: 'Invalid email address',
-  });
+const OptionalEmail = OptionalContact.refine(
+  (value) => value === undefined || z.email().safeParse(value).success,
+  { message: 'อีเมลไม่ถูกต้อง' },
+);
 
+/**
+ * Create input: `code` and `name` are required and must not be blank; each contact
+ * field is optional and, when given, an empty string is treated as absent.
+ */
 export const CreateSupplierSchema = z.object({
-  code: z.string().min(1),
-  name: z.string().min(1),
+  code: z.string().trim().min(1),
+  name: z.string().trim().min(1),
   contactPerson: OptionalContact,
   phone: OptionalContact,
   email: OptionalEmail,

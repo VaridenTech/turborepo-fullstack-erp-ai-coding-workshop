@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { contract } from '@erp/contracts';
+import { contract, type CreateSupplierInput } from '@erp/contracts';
 import { Implement, implement, ORPCError } from '@orpc/nest';
 import { Roles } from '../auth/auth.decorators.js';
 import type { Supplier } from '@erp/database';
@@ -37,14 +37,7 @@ function supplierCodeTakenError() {
  * pass through, and each optional contact field becomes `null` when absent so the
  * database stores a consistent empty value.
  */
-function toData(input: {
-  code: string;
-  name: string;
-  contactPerson?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-}) {
+function toData(input: CreateSupplierInput) {
   return {
     code: input.code,
     name: input.name,
