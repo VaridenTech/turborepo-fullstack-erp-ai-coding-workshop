@@ -30,7 +30,13 @@ describe('StoresController', () => {
     const result = await call(controller.list(), { page: 1, pageSize: 20 });
 
     expect(result).toEqual({
-      items: [{ ...central, createdAt: central.createdAt.toISOString(), updatedAt: central.updatedAt.toISOString() }],
+      items: [
+        {
+          ...central,
+          createdAt: central.createdAt.toISOString(),
+          updatedAt: central.updatedAt.toISOString(),
+        },
+      ],
       total: 1,
       page: 1,
       pageSize: 20,

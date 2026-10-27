@@ -50,7 +50,12 @@ export type StoreList = z.infer<typeof StoreListSchema>;
 
 export const storesContract = {
   list: oc
-    .route({ method: 'GET', path: '/stores', summary: 'List stores (newest first)', tags: ['Stores'] })
+    .route({
+      method: 'GET',
+      path: '/stores',
+      summary: 'List stores (newest first)',
+      tags: ['Stores'],
+    })
     .input(StoreListQuerySchema)
     .output(StoreListSchema),
   create: oc
