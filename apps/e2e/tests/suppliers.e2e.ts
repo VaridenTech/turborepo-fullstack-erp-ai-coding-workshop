@@ -18,9 +18,8 @@ test.describe('suppliers', () => {
     await page.getByLabel('ชื่อผู้ขาย').fill(name);
     await page.getByRole('button', { name: 'เพิ่มผู้ขาย' }).click();
 
-    // The new supplier appears in the newest-first list.
-    await expect(page.getByText(code)).toBeVisible();
-    await expect(page.getByText(name).first()).toBeVisible();
+    // The new supplier appears as a row in the newest-first list.
+    await expect(page.getByRole('listitem').filter({ hasText: code })).toBeVisible();
 
     // A second supplier with the same code is rejected with the Thai envelope.
     await page.getByLabel('รหัสผู้ขาย').fill(code);

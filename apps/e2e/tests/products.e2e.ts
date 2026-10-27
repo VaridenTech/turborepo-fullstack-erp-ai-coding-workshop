@@ -26,12 +26,12 @@ test.describe('products', () => {
       await page.getByLabel('หน่วย').fill('แพ็ค');
       await page.getByLabel('ราคาขาย').fill(product.price);
       await page.getByRole('button', { name: 'เพิ่มสินค้า' }).click();
-      await expect(page.getByText(product.sku)).toBeVisible();
+      await expect(page.getByRole('listitem').filter({ hasText: product.sku })).toBeVisible();
     }
 
     // Deactivate SKU003; it stays in the list (searchable in history, MD-02).
     await page.getByRole('button', { name: `ปิดการใช้งาน ${detergent.sku}` }).click();
-    await expect(page.getByText(detergent.sku)).toBeVisible();
+    await expect(page.getByRole('listitem').filter({ hasText: detergent.sku })).toBeVisible();
     await expect(
       page.getByRole('button', { name: `เปิดการใช้งาน ${detergent.sku}` }),
     ).toBeVisible();
