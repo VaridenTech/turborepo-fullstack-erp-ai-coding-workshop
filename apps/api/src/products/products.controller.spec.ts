@@ -67,7 +67,7 @@ describe('ProductsController', () => {
       search: 'water',
     });
 
-    const arg = findMany.mock.calls[0][0];
+    const arg = findMany.mock.calls[0]![0];
     // No isActive filter when including inactive, and the search term is applied.
     expect(arg.where.isActive).toBeUndefined();
     expect(JSON.stringify(arg.where)).toContain('water');
@@ -88,7 +88,7 @@ describe('ProductsController', () => {
     });
 
     expect(result).toMatchObject({ id: 'p1', sku: 'SKU001', sellingPrice: '60.00' });
-    const data = create.mock.calls[0][0].data;
+    const data = create.mock.calls[0]![0].data;
     expect(data).toMatchObject({ sku: 'SKU001', sellingPrice: '60.00', isActive: true });
     expect(data.reorderThresholds.create).toEqual([{ storeId: 'b01', threshold: 3 }]);
   });
@@ -167,7 +167,7 @@ describe('ProductsController', () => {
       ],
     });
 
-    expect(create.mock.calls[0][0].data.reorderThresholds.create).toEqual([
+    expect(create.mock.calls[0]![0].data.reorderThresholds.create).toEqual([
       { storeId: 'b01', threshold: 3 },
       { storeId: 'b02', threshold: 5 },
     ]);
@@ -198,7 +198,7 @@ describe('ProductsController', () => {
 
     expect(result).toMatchObject({ id: 'p1', isActive: false });
     // The update never carries an sku key (immutable, AC5).
-    const updateArg = update.mock.calls[0][0];
+    const updateArg = update.mock.calls[0]![0];
     expect('sku' in updateArg.data).toBe(false);
   });
 });

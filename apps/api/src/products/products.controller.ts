@@ -150,9 +150,7 @@ export class ProductsController {
           where: { id },
           data: {
             ...data,
-            ...(reorderThresholds
-              ? { reorderThresholds: { create: reorderThresholds } }
-              : {}),
+            ...(reorderThresholds ? { reorderThresholds: { create: reorderThresholds } } : {}),
           },
           include: { reorderThresholds: true },
         });

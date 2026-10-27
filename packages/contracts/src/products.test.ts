@@ -69,14 +69,14 @@ describe('ReorderThresholdSchema', () => {
 });
 
 describe('UpdateProductSchema', () => {
+  const { sku: _sku, ...editable } = base;
+
   it('requires an id', () => {
-    const { sku, ...rest } = base;
-    expect(UpdateProductSchema.safeParse(rest).success).toBe(false);
+    expect(UpdateProductSchema.safeParse(editable).success).toBe(false);
   });
 
   it('does not carry sku (immutable): an id plus editable fields is enough', () => {
-    const { sku, ...rest } = base;
-    const result = UpdateProductSchema.safeParse({ id: 'p1', ...rest });
+    const result = UpdateProductSchema.safeParse({ id: 'p1', ...editable });
 
     expect(result.success).toBe(true);
     if (result.success) {
@@ -85,8 +85,7 @@ describe('UpdateProductSchema', () => {
   });
 
   it('ignores an attempt to change sku', () => {
-    const { sku, ...rest } = base;
-    const result = UpdateProductSchema.safeParse({ id: 'p1', sku: 'SKU999', ...rest });
+    const result = UpdateProductSchema.safeParse({ id: 'p1', sku: 'SKU999', ...editable });
 
     // The schema strips unknown keys, so sku never reaches the handler.
     expect(result.success).toBe(true);

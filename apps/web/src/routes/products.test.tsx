@@ -1,5 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RequireAuth } from '@/components/require-auth';
@@ -126,6 +126,25 @@ describe('ProductsPage', () => {
     renderProducts();
 
     expect(await screen.findByText('ปิดการใช้งาน')).toBeInTheDocument();
+    // An inactive product offers a reactivate action, not a deactivate one.
+    expect(screen.getByRole('button', { name: 'เปิดการใช้งาน SKU001' })).toBeInTheDocument();
+  });
+
+  it('deactivates a product from the list (MD-02)', async () => {
+    const fetchMock = mockApi({
+      'GET /products': { items: [water], total: 1, page: 1, pageSize: 20 },
+      'PATCH /products/p1': { ...water, isActive: false },
+    });
+
+    renderProducts();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'ปิดการใช้งาน SKU001' }));
+
+    // The list issues a PATCH to update the product's active status.
+    await waitFor(() => {
+      const patch = fetchMock.mock.calls.find(([req]: [Request]) => req.method === 'PATCH');
+      expect(patch, 'a PATCH request was sent').toBeTruthy();
+    });
   });
 
   it('surfaces the Thai error envelope when a duplicate SKU is submitted', async () => {

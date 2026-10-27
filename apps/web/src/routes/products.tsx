@@ -19,7 +19,16 @@ function thaiError(error: unknown): string {
 }
 
 function ProductList() {
+  const queryClient = useQueryClient();
   const products = useQuery(orpc.products.list.queryOptions({ input: { includeInactive: true } }));
+
+  const setActive = useMutation(
+    orpc.products.update.mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: orpc.products.key() });
+      },
+    }),
+  );
 
   if (products.isPending) {
     return <p className="text-muted-foreground">กำลังโหลด…</p>;
@@ -48,6 +57,26 @@ function ProductList() {
           <div className="flex items-center gap-3">
             <span className="text-sm tabular-nums">{product.sellingPrice}</span>
             {!product.isActive && <Badge variant="secondary">ปิดการใช้งาน</Badge>}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={setActive.isPending}
+              aria-label={`${product.isActive ? 'ปิดการใช้งาน' : 'เปิดการใช้งาน'} ${product.sku}`}
+              onClick={() =>
+                setActive.mutate({
+                  id: product.id,
+                  name: product.name,
+                  category: product.category,
+                  unit: product.unit,
+                  sellingPrice: product.sellingPrice,
+                  isActive: !product.isActive,
+                  reorderThresholds: product.reorderThresholds,
+                })
+              }
+            >
+              {product.isActive ? 'ปิดการใช้งาน' : 'เปิดการใช้งาน'}
+            </Button>
           </div>
         </li>
       ))}
