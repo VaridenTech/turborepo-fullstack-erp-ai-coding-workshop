@@ -1,7 +1,12 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 
-export const RoleSchema = z.enum(['ADMIN', 'STAFF']);
+export const RoleSchema = z.enum([
+  'ADMINISTRATOR',
+  'PURCHASING_OFFICER',
+  'STORE_EMPLOYEE',
+  'MANAGER',
+]);
 export type Role = z.infer<typeof RoleSchema>;
 
 /** The signed-in user as the API exposes it (never includes the password hash). */
@@ -10,6 +15,8 @@ export const UserSchema = z.object({
   email: z.email(),
   name: z.string(),
   role: RoleSchema,
+  /** Store assignment: a store id for STORE_EMPLOYEE, null for non-scoped roles. */
+  storeId: z.string().nullable(),
 });
 export type User = z.infer<typeof UserSchema>;
 

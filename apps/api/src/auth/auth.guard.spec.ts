@@ -10,7 +10,13 @@ import { AuthGuard } from './auth.guard.js';
 import { createSessionToken, SESSION_COOKIE } from './session-token.js';
 
 const secret = 'test-secret-that-is-at-least-32-characters';
-const staff: User = { id: 'u1', email: 'staff@erp.local', name: 'Staff User', role: 'STAFF' };
+const staff: User = {
+  id: 'u1',
+  email: 'staff_b01@erp.local',
+  name: 'Staff B01',
+  role: 'STORE_EMPLOYEE',
+  storeId: 's1',
+};
 
 class RoutesUnderTest {
   @Public()
@@ -18,7 +24,7 @@ class RoutesUnderTest {
 
   closed() {}
 
-  @Roles('ADMIN')
+  @Roles('ADMINISTRATOR')
   adminOnly() {}
 }
 
@@ -92,7 +98,7 @@ describe('AuthGuard', () => {
   });
 
   it('allows a user with the required role', async () => {
-    const { run } = setup({ ...staff, role: 'ADMIN' });
+    const { run } = setup({ ...staff, role: 'ADMINISTRATOR' });
 
     await expect(run('adminOnly', sessionCookie('u1')).result).resolves.toBe(true);
   });

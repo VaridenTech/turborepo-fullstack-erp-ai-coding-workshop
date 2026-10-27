@@ -142,7 +142,7 @@ describe('StoresController', () => {
 });
 
 /**
- * Role enforcement (NFR-01) is observable at seam 1 through the `@Roles('ADMIN')`
+ * Role enforcement (NFR-01) is observable at seam 1 through the `@Roles('ADMINISTRATOR')`
  * metadata the global AuthGuard reads; the guard's allow/deny behaviour itself is
  * proven in `auth.guard.spec.ts`. A route without this metadata would be reachable
  * by any signed-in user, so the metadata is the contract that gates each route.
@@ -150,13 +150,13 @@ describe('StoresController', () => {
 describe('StoresController role enforcement', () => {
   const reflector = new Reflector();
 
-  it.each(['list', 'create', 'update'] as const)('restricts %s to ADMIN', async (method) => {
+  it.each(['list', 'create', 'update'] as const)('restricts %s to ADMINISTRATOR', async (method) => {
     const controller = await createController({});
     const roles = reflector.get<string[]>(
       ROLES_KEY,
       Object.getPrototypeOf(controller)[method] as () => unknown,
     );
 
-    expect(roles).toEqual(['ADMIN']);
+    expect(roles).toEqual(['ADMINISTRATOR']);
   });
 });

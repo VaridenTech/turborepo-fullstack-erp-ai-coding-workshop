@@ -8,7 +8,7 @@ export const ROLES_KEY = 'auth:roles';
 /** Every route requires a signed-in user unless it (or its controller) is marked `@Public()`. */
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
-/** Only users with one of these roles may call the route, e.g. `@Roles('ADMIN')`. */
+/** Only users with one of these roles may call the route, e.g. `@Roles('ADMINISTRATOR')`. */
 export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
 
 /** The request after `AuthGuard` has run. `user` is unset on public routes without a session. */
