@@ -1,7 +1,12 @@
 import type { User } from '@erp/contracts';
 import { ORPCError } from '@orpc/nest';
 
-/** Roles that are NOT store-scoped: they may act across every store. */
+/**
+ * Roles that are NOT store-scoped: they may act across every store.
+ * The spec names Managers and Administrators; Purchasing officers are included
+ * because they raise purchase orders for any destination store (Section 2 is
+ * silent on them, so they default to cross-store like the other head-office roles).
+ */
 const UNSCOPED_ROLES: ReadonlySet<User['role']> = new Set([
   'ADMINISTRATOR',
   'MANAGER',

@@ -15,3 +15,7 @@ ALTER COLUMN "role" SET DEFAULT 'STORE_EMPLOYEE';
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_storeId_fkey" FOREIGN KEY ("storeId") REFERENCES "Store"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- A STORE_EMPLOYEE must be assigned a store; other roles must not be (Section 2).
+ALTER TABLE "User" ADD CONSTRAINT "User_store_assignment_check"
+  CHECK (("role" = 'STORE_EMPLOYEE') = ("storeId" IS NOT NULL));
