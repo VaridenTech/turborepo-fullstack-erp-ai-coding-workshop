@@ -74,7 +74,13 @@ function renderSuppliers() {
 /** oRPC JSON error body carrying the shared Thai error envelope in `data`. */
 function envelope(code: string, message: string, fields: string[], status = 409) {
   return Response.json(
-    { defined: false, code, status, message, data: { code: 'SUPPLIER_CODE_TAKEN', message, fields } },
+    {
+      defined: false,
+      code,
+      status,
+      message,
+      data: { code: 'SUPPLIER_CODE_TAKEN', message, fields },
+    },
     { status },
   );
 }

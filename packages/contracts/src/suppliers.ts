@@ -80,7 +80,12 @@ export const suppliersContract = {
     .input(SupplierListQuerySchema)
     .output(SupplierListSchema),
   create: oc
-    .route({ method: 'POST', path: '/suppliers', summary: 'Create a supplier', tags: ['Suppliers'] })
+    .route({
+      method: 'POST',
+      path: '/suppliers',
+      summary: 'Create a supplier',
+      tags: ['Suppliers'],
+    })
     .input(CreateSupplierSchema)
     .output(SupplierSchema),
   update: oc
