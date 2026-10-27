@@ -19,7 +19,7 @@ test.describe('inventory', () => {
     await search(page, 'SKU001');
     const waterB01 = page.getByRole('row', { name: /^SKU001 .* B01 / });
     await expect(waterB01.getByRole('cell', { name: '10', exact: true })).toBeVisible();
-    await expect(waterB01.getByRole('cell', { name: 'แพ็ค' })).toBeVisible();
+    await expect(waterB01.getByRole('cell', { name: 'แพ็ค', exact: true })).toBeVisible();
     await expect(waterB01.getByRole('cell', { name: '3', exact: true })).toBeVisible();
     await expect(waterB01.getByText('ปกติ')).toBeVisible();
     const waterB02 = page.getByRole('row', { name: /^SKU001 .* B02 / });
@@ -30,7 +30,7 @@ test.describe('inventory', () => {
     await search(page, 'น้ำยาซักผ้า');
     const detergentB01 = page.getByRole('row', { name: /^SKU003 .* B01 / });
     await expect(detergentB01.getByRole('cell', { name: '0', exact: true })).toBeVisible();
-    await expect(detergentB01.getByRole('cell', { name: 'ถุง' })).toBeVisible();
+    await expect(detergentB01.getByRole('cell', { name: 'ถุง', exact: true })).toBeVisible();
     await expect(detergentB01.getByText('สต็อกต่ำ')).toBeVisible();
 
     // By store: only Riverside rows.
