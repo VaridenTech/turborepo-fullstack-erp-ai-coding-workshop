@@ -13,9 +13,12 @@ export function RootLayout() {
             <Link to="/">ERP Workshop</Link>
             {/* Administrator-only master data. The API still enforces @Roles('ADMINISTRATOR'). */}
             {user?.role === 'ADMINISTRATOR' && (
-              <nav className="text-sm font-normal">
+              <nav className="flex items-center gap-4 text-sm font-normal">
                 <Link to="/stores" className="text-muted-foreground hover:text-foreground">
                   สาขา
+                </Link>
+                <Link to="/suppliers" className="text-muted-foreground hover:text-foreground">
+                  ผู้ขาย
                 </Link>
               </nav>
             )}
