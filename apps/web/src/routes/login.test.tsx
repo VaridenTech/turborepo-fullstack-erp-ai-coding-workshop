@@ -6,7 +6,13 @@ import { createQueryClient } from '@/lib/query-client';
 import { mockApi, unauthorized } from '@/test/mock-api';
 import { LoginPage } from './login';
 
-const admin = { id: '1', email: 'admin@erp.local', name: 'Admin User', role: 'ADMIN' };
+const admin = {
+  id: '1',
+  email: 'administrator@erp.local',
+  name: 'Administrator',
+  role: 'ADMINISTRATOR',
+  storeId: null,
+};
 
 function renderLogin(url = '/login') {
   const router = createMemoryRouter(
@@ -39,11 +45,14 @@ describe('LoginPage', () => {
     const fetch = mockApi({ 'GET /auth/me': { user: null }, 'POST /auth/login': admin });
 
     renderLogin('/login?redirect=%2Forders');
-    await signIn('admin@erp.local', 'password');
+    await signIn('administrator@erp.local', 'password');
 
     expect(await screen.findByText('Orders page')).toBeInTheDocument();
     const login = fetch.mock.calls.find(([request]) => request.method === 'POST')![0];
-    await expect(login.json()).resolves.toEqual({ email: 'admin@erp.local', password: 'password' });
+    await expect(login.json()).resolves.toEqual({
+      email: 'administrator@erp.local',
+      password: 'password',
+    });
   });
 
   it('shows an error for wrong credentials', async () => {
@@ -53,7 +62,7 @@ describe('LoginPage', () => {
     });
 
     renderLogin();
-    await signIn('admin@erp.local', 'wrong');
+    await signIn('administrator@erp.local', 'wrong');
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Invalid email or password.');
   });
@@ -62,9 +71,9 @@ describe('LoginPage', () => {
     mockApi({ 'GET /auth/me': { user: null } });
 
     renderLogin();
-    fireEvent.click(await screen.findByText('staff@erp.local'));
+    fireEvent.click(await screen.findByText('staff_b01@erp.local'));
 
-    expect(screen.getByLabelText('Email')).toHaveValue('staff@erp.local');
+    expect(screen.getByLabelText('Email')).toHaveValue('staff_b01@erp.local');
     expect(screen.getByLabelText('Password')).toHaveValue('password');
   });
 

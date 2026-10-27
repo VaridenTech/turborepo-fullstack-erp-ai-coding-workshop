@@ -11,8 +11,8 @@ export function RootLayout() {
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6 font-semibold">
           <div className="flex items-center gap-6">
             <Link to="/">ERP Workshop</Link>
-            {/* Administrator-only master data. The API still enforces @Roles('ADMIN'). */}
-            {user?.role === 'ADMIN' && (
+            {/* Administrator-only master data. The API still enforces @Roles('ADMINISTRATOR'). */}
+            {user?.role === 'ADMINISTRATOR' && (
               <nav className="text-sm font-normal">
                 <Link to="/stores" className="text-muted-foreground hover:text-foreground">
                   สาขา
