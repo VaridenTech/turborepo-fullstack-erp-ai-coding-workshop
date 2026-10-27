@@ -37,12 +37,13 @@ model User {
 
 /// Store master data (MD-03). `code` is unique; the list is ordered newest-first.
 model Store {
-  id        String   @id @default(cuid())
-  code      String   @unique
-  name      String
-  employees User[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String                    @id @default(cuid())
+  code               String                    @unique
+  name               String
+  employees          User[]
+  reorderThresholds  ProductReorderThreshold[]
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
 }
 
 /// Supplier master data (MD-03). `code` is unique; contact details are optional.
@@ -57,4 +58,33 @@ model Supplier {
   address       String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+/// Product master data (MD-01, MD-02). `sku` is unique across the organization and
+/// immutable once referenced by a transaction. `sellingPrice` is money (two decimals).
+/// Deactivation keeps the product searchable but blocks it from new documents.
+model Product {
+  id                String                    @id @default(cuid())
+  sku               String                    @unique
+  name              String
+  category          String
+  unit              String
+  sellingPrice      Decimal                   @db.Decimal(12, 2)
+  isActive          Boolean                   @default(true)
+  reorderThresholds ProductReorderThreshold[]
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+}
+
+/// Per-store reorder threshold for a product (MD-01). A product has at most one
+/// threshold per store; `threshold` is a non-negative whole number.
+model ProductReorderThreshold {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  storeId   String
+  store     Store   @relation(fields: [storeId], references: [id])
+  threshold Int
+
+  @@unique([productId, storeId])
 }
