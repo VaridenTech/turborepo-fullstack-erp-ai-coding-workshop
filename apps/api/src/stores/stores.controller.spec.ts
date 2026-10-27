@@ -150,13 +150,16 @@ describe('StoresController', () => {
 describe('StoresController role enforcement', () => {
   const reflector = new Reflector();
 
-  it.each(['list', 'create', 'update'] as const)('restricts %s to ADMINISTRATOR', async (method) => {
-    const controller = await createController({});
-    const roles = reflector.get<string[]>(
-      ROLES_KEY,
-      Object.getPrototypeOf(controller)[method] as () => unknown,
-    );
+  it.each(['list', 'create', 'update'] as const)(
+    'restricts %s to ADMINISTRATOR',
+    async (method) => {
+      const controller = await createController({});
+      const roles = reflector.get<string[]>(
+        ROLES_KEY,
+        Object.getPrototypeOf(controller)[method] as () => unknown,
+      );
 
-    expect(roles).toEqual(['ADMINISTRATOR']);
-  });
+      expect(roles).toEqual(['ADMINISTRATOR']);
+    },
+  );
 });
