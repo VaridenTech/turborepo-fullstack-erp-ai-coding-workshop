@@ -17,8 +17,20 @@ const central = {
   updatedAt: new Date('2026-01-02T00:00:00.000Z').toISOString(),
 };
 
-const admin = { id: '1', email: 'admin@erp.local', name: 'Admin User', role: 'ADMIN' };
-const staff = { id: '2', email: 'staff@erp.local', name: 'Staff User', role: 'STAFF' };
+const admin = {
+  id: '1',
+  email: 'administrator@erp.local',
+  name: 'Administrator',
+  role: 'ADMINISTRATOR',
+  storeId: null,
+};
+const staff = {
+  id: '2',
+  email: 'staff_b01@erp.local',
+  name: 'Staff B01',
+  role: 'STORE_EMPLOYEE',
+  storeId: 's1',
+};
 
 /** The real route tree (RequireAuth > RootLayout > pages) driven by a memory router. */
 function renderApp(url = '/') {
