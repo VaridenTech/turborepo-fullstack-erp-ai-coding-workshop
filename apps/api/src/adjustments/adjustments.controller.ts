@@ -5,18 +5,6 @@ import { CurrentUser, Roles } from '../auth/auth.decorators.js';
 import { PrismaService } from '../database/prisma.service.js';
 import { recordAdjustment } from './record-adjustment.js';
 
-type AuditRow = {
-  id: string;
-  actorId: string;
-  actor: { name: string };
-  action: string;
-  sourceDocumentType: string;
-  sourceDocumentId: string;
-  outcome: string;
-  detail: string | null;
-  createdAt: Date | string;
-};
-
 function toIso(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : value;
 }
@@ -47,7 +35,7 @@ export class AdjustmentsController {
 
   @Roles('MANAGER', 'ADMINISTRATOR')
   @Implement(contract.adjustments.auditList)
-  auditList(@CurrentUser() _user: User) {
+  auditList() {
     return implement(contract.adjustments.auditList).handler(async ({ input }) => {
       const { page, pageSize } = input;
       const [rows, total] = await Promise.all([
@@ -60,7 +48,7 @@ export class AdjustmentsController {
         this.prisma.auditLog.count(),
       ]);
       return {
-        items: (rows as AuditRow[]).map((row) => ({
+        items: rows.map((row) => ({
           id: row.id,
           actorId: row.actorId,
           actorName: row.actor.name,

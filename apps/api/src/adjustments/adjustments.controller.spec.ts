@@ -118,7 +118,7 @@ describe('AdjustmentsController.auditList (NFR-03)', () => {
     const count = vi.fn().mockResolvedValue(1);
     const controller = await createController({ auditLog: { findMany, count } });
 
-    const result = await call(controller.auditList(manager), { page: 1, pageSize: 20 });
+    const result = await call(controller.auditList(), { page: 1, pageSize: 20 });
 
     expect(result).toMatchObject({
       total: 1,

@@ -14,7 +14,7 @@ async function waterB01Ids(request: APIRequestContext) {
 }
 
 test.describe('stock adjustments', () => {
-  test.use({ storageState: storageState('admin') });
+  test.use({ storageState: storageState('manager') });
 
   test('a Manager adjusts stock up and down with a reason and sees the audit record; an over-reduction is rejected', async ({
     page,
